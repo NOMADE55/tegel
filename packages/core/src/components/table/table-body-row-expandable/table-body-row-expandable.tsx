@@ -27,6 +27,7 @@ const relevantTableProps: InternalTdsTablePropChange['changed'] = [
 
  * @part row - Selector for the main row of the table.
  * @part expand-row - Selector for the expanded row of the table.
+ * @part expand-row-cell - Selector for the cell in the expanded row of the table.
  */
 
 @Component({
@@ -46,9 +47,13 @@ export class TdsTableBodyRowExpandable {
   @Prop({ reflect: true }) expanded: boolean;
 
   /** Controls the overflow behavior of the expandable row content */
-  @Prop({ reflect: true }) overflow: 'auto' | 'hidden' = 'auto';
+  @Prop({ reflect: true }) overflow: 'auto' | 'hidden' | 'visible' = 'auto';
 
   /** Sets isExpanded state to true or false internally */
+  /** Enables auto-collapse of other expandable rows when one row is expanded */
+  @Prop() autoCollapse: boolean = false;
+
+  /** Sets isExpanded state to true or fals internally */
   @State() isExpanded: boolean = false;
 
   @State() tableId: string = '';
@@ -86,6 +91,7 @@ export class TdsTableBodyRowExpandable {
   tdsChange: EventEmitter<{
     rowId: string;
     isExpanded: boolean;
+    tableId: string;
   }>;
 
   @Listen('internalTdsTablePropChange', { target: 'body' })
@@ -102,11 +108,28 @@ export class TdsTableBodyRowExpandable {
     }
   }
 
+  @Listen('tdsChange', { target: 'body' })
+  handleRowExpand(event: CustomEvent<{ rowId: string; isExpanded: boolean; tableId: string }>) {
+    /** Collapse all other rows when autoCollapse is true and a row is expanded */
+    if (
+      this.autoCollapse &&
+      event.detail.isExpanded &&
+      event.detail.rowId !== this.rowId &&
+      event.detail.tableId === this.tableId
+    ) {
+      this.collapse();
+    }
+  }
+
   @Watch('expanded')
   watchExpanded(newValue: boolean) {
     if (newValue !== this.isExpanded) {
       this.isExpanded = newValue;
-      this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded });
+      this.tdsChange.emit({
+        rowId: this.rowId,
+        isExpanded: this.isExpanded,
+        tableId: this.tableId,
+      });
     }
   }
 
@@ -114,14 +137,14 @@ export class TdsTableBodyRowExpandable {
   @Method()
   async expand() {
     this.isExpanded = true;
-    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded });
+    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded, tableId: this.tableId });
   }
 
   /** Method to collapse table row */
   @Method()
   async collapse() {
     this.isExpanded = false;
-    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded });
+    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded, tableId: this.tableId });
   }
 
   connectedCallback() {
@@ -150,7 +173,7 @@ export class TdsTableBodyRowExpandable {
 
   sendValue() {
     this.internalTdsRowExpanded.emit([this.tableId, this.isExpanded]);
-    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded });
+    this.tdsChange.emit({ rowId: this.rowId, isExpanded: this.isExpanded, tableId: this.tableId });
   }
 
   onChangeHandler(event) {
@@ -175,7 +198,11 @@ export class TdsTableBodyRowExpandable {
           }}
           part="row"
         >
-          <td class="tds-table__cell tds-table__cell--expand">
+          <td
+            class={{
+              'tds-table__cell-expand': true,
+            }}
+          >
             <label class="tds-table__expand-control-container">
               <input
                 class="tds-table__expand-input"
@@ -205,7 +232,15 @@ export class TdsTableBodyRowExpandable {
           }}
           part="expand-row"
         >
-          <td class="tds-table__cell-expand" colSpan={this.columnsNumber}>
+          <td
+            class={{
+              'tds-table__cell-expand': true,
+              'tds-table__cell-expand--overflow-hidden': this.overflow === 'hidden',
+              'tds-table__cell-expand--overflow-visible': this.overflow === 'visible',
+            }}
+            part="expand-row-cell"
+            colSpan={this.columnsNumber}
+          >
             <div
               style={{
                 overflow: this.overflow,
