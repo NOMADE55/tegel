@@ -223,7 +223,7 @@ const Template = ({
 }) =>
   formatHtmlPreview(`
   <style>
-  /* demo-wrapper is for demonstration purposes only*/
+  /* demo-wrapper is for demonstration purposes only */
   .demo-wrapper {
     width: 300px;
     height:200px;
