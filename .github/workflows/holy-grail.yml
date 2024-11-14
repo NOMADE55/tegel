@@ -144,7 +144,7 @@ jobs:
 
   #BUMP WRAPPERS TO NEW VERSION
   bump-wrappers-to-new-version:
-    needs: release-core
+    needs: [release-core, create-release-branch]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
