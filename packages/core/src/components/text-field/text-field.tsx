@@ -136,8 +136,8 @@ export class TdsTextField {
     return (
       <div
         class={{
+          'form-text-field': true,
           'form-text-field-nomin': this.noMinWidth,
-          'form-text-field': !this.focusInput || this.disabled,
           'text-field-focus': this.focusInput && !this.disabled,
           'text-field-data': this.value !== '' && this.value !== null,
           'text-field-container-label-inside':
@@ -240,9 +240,22 @@ export class TdsTextField {
             {this.state !== 'error' && this.helper}
 
             {this.maxLength > 0 && (
-              <div class="text-field-textcounter">
+              <div
+                class={{
+                  'text-field-textcounter': true,
+                  'text-field-textcounter-disabled': this.disabled,
+                }}
+              >
                 {this.value === null ? 0 : this.value?.length}
-                <span class="text-field-textcounter-divider"> / </span>
+                <span
+                  class={{
+                    'text-field-textcounter-divider': true,
+                    'text-field-textcounter-disabled': this.disabled,
+                  }}
+                >
+                  {' '}
+                  /{' '}
+                </span>
                 {this.maxLength}
               </div>
             )}
