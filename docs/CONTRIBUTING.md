@@ -31,7 +31,7 @@ To properly test your changes' behaviors in a project, reference your local Tege
 
 ### (Optional) Testing Packages
 In case you need to test React or Angular packages of Tegel, follow the instructions below replacing `{package}` for **react**, **angular** or **angular-17** respectively.
-- **Building**: Complete the build step for Tegel and verify that the package you plan to test has been built successfully. There are commands available to only build specific packages, i.e., `npm run build-{package}`.
+- **Building**: Complete the build step for Tegel and verify that the package you plan to test has been built successfully. There are commands available to only build specific packages, i.e., `npm run build:{package}`.
 - **Linking**: After linking core, navigate to `packages/{package}` and execute `npm run link`.
 - **Using linked instances**: In your project run `npm link '@scania/tegel-{package}'` before running `npm link '@scania/tegel'`.
 
